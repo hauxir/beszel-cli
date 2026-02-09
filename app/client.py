@@ -158,6 +158,13 @@ class BeszelClient:
         result = self.list_records("containers", per_page=200, filter_expr=filter_expr)
         return result.get("items", [])  # type: ignore[no-any-return]
 
+    def get_container_logs(self, system_id: str, container_id: str) -> str:
+        result = self._get("/api/beszel/containers/logs", {"system": system_id, "container": container_id})
+        return result.get("logs", "")  # type: ignore[no-any-return]
+
+    def get_container_info(self, system_id: str, container_id: str) -> dict[str, Any]:
+        return self._get("/api/beszel/containers/info", {"system": system_id, "container": container_id})
+
     def close(self) -> None:
         self._client.close()
 

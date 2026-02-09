@@ -274,6 +274,32 @@ def containers(system_id: str, json_output: bool) -> None:
         console.print(table)
 
 
+@main.command("logs")
+@click.argument("system_id")
+@click.argument("container")
+@click.option("--json-output", "-j", is_flag=True, help="Output as JSON")
+def logs(system_id: str, container: str, json_output: bool) -> None:
+    """Show container logs. CONTAINER can be a name or Docker ID."""
+    with get_client() as client:
+        # If container looks like a name (not a hex ID), resolve it
+        container_id = container
+        if not all(c in "0123456789abcdef" for c in container.lower()):
+            container_list = client.get_containers(system_id)
+            matches = [c for c in container_list if c.get("name") == container]
+            if not matches:
+                console.print(f"[red]Container '{container}' not found on system {system_id}[/red]")
+                raise SystemExit(1)
+            container_id = matches[0].get("id", container)
+        log_output = client.get_container_logs(system_id, container_id)
+        if json_output:
+            console.print(json.dumps({"logs": log_output}, indent=2))
+            return
+        if not log_output:
+            console.print("[dim]No logs found[/dim]")
+            return
+        console.print(log_output, highlight=False)
+
+
 # === Alerts ===
 
 
