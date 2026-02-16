@@ -94,6 +94,9 @@ class BeszelClient:
     def get_system(self, system_id: str) -> dict[str, Any]:
         return self.get_record("systems", system_id)
 
+    def create_system(self, data: dict[str, Any]) -> dict[str, Any]:
+        return self.create_record("systems", data)
+
     def update_system(self, system_id: str, data: dict[str, Any]) -> dict[str, Any]:
         return self.update_record("systems", system_id, data)
 

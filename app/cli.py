@@ -337,6 +337,26 @@ def alerts(system_id: str, json_output: bool) -> None:
         console.print(table)
 
 
+@main.command("alert-create")
+@click.argument("system_id")
+@click.argument("name", type=click.Choice(["CPU", "Memory", "Disk", "Bandwidth", "LoadAvg5", "Status"]))
+@click.argument("value", type=float)
+@click.option("--min", "-m", "min_val", type=float, default=10, help="Minimum duration in minutes (default: 10)")
+def alert_create(system_id: str, name: str, value: float, min_val: float) -> None:
+    """Create an alert for a system."""
+    with get_client() as client:
+        user = client.get_current_user()
+        data = {
+            "system": system_id,
+            "user": user["id"],
+            "name": name,
+            "value": value,
+            "min": min_val,
+        }
+        alert = client.create_alert(data)
+        console.print(f"[green]Alert created:[/green] {name} > {value} on {system_id} (id: {alert.get('id')})")
+
+
 @main.command("alert-delete")
 @click.argument("alert_id")
 @click.confirmation_option(prompt="Are you sure you want to delete this alert?")
